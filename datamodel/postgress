@@ -1,0 +1,52 @@
+CREATE SCHEMA IF NOT EXISTS "metro";
+
+CREATE  TABLE "metro".dim_date ( 
+	date_id              INT  NOT NULL  ,
+	"year"               INT    ,
+	quarter              INT    ,
+	"month"              INT    ,
+	"day"                INT    ,
+	weekday              VARCHAR(9)    ,
+	CONSTRAINT pk_dim_date PRIMARY KEY ( date_id )
+ );
+
+CREATE  TABLE "metro".dim_passholder ( 
+	passholder_id        VARCHAR  NOT NULL  ,
+	CONSTRAINT pk_dim_analyte PRIMARY KEY ( passholder_id )
+ );
+
+CREATE  TABLE "metro".dim_station ( 
+	station_id           INT  NOT NULL  ,
+	latitude             FLOAT    ,
+	longitude            FLOAT    ,
+	CONSTRAINT pk_dim_station PRIMARY KEY ( station_id )
+ );
+
+CREATE  TABLE "metro".dim_time ( 
+	time_id              INT  NOT NULL  ,
+	start_time           INT    ,
+	end_time             INT    ,
+	CONSTRAINT pk_dim_collection PRIMARY KEY ( time_id )
+ );
+
+CREATE  TABLE "metro".fact_bike_trips ( 
+	fact_id              INT  NOT NULL  ,
+	trip_id              INT  NOT NULL  ,
+	time_id              INT  NOT NULL  ,
+	station_id           INT  NOT NULL  ,
+	bike_id              VARCHAR  NOT NULL  ,
+	passholder_id        INT  NOT NULL  ,
+	trip_duration        INT    ,
+	trip_route_category  VARCHAR(10)    ,
+	bike_type            VARCHAR(10)    ,
+	data_id              DATE  NOT NULL  ,
+	CONSTRAINT pk_fact_bike_trips PRIMARY KEY ( fact_id, time_id, data_id, station_id, passholder_id )
+ );
+
+ALTER TABLE "metro".fact_bike_trips ADD CONSTRAINT fk_fact_bike_trips_dim_time FOREIGN KEY ( time_id ) REFERENCES "metro".dim_time( time_id );
+
+ALTER TABLE "metro".fact_bike_trips ADD CONSTRAINT fk_fact_bike_trips_dim_date FOREIGN KEY ( data_id ) REFERENCES "metro".dim_date( date_id );
+
+ALTER TABLE "metro".fact_bike_trips ADD CONSTRAINT fk_fact_bike_trips_dim_station FOREIGN KEY ( station_id ) REFERENCES "metro".dim_station( station_id );
+
+ALTER TABLE "metro".fact_bike_trips ADD CONSTRAINT fk_fact_bike_trips_dim_passholder FOREIGN KEY ( passholder_id ) REFERENCES "metro".dim_passholder( passholder_id );
